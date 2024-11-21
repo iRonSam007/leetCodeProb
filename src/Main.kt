@@ -1,5 +1,6 @@
 import java.lang.classfile.components.ClassPrinter.ListNode
 import java.util.LinkedList
+import java.util.PriorityQueue
 import kotlin.math.min
 
 fun twoSum__test(){
@@ -168,6 +169,91 @@ fun longestSubstringLength(x: String): Int {
     return longestLengts.max()
 }
 
+fun zeroSomeTriplets__Test(){
+    val x: List<Int> =  listOf(-1, 0, 1, 2, -1, -4, 4, 3)
+    val output: List<List<Int>> = zeroSomeTriplets(x) // Polymorphism, MutableList is a subtype of List, output will stay immutable.
+    println("Expecting << [[-1, 0, 1], [-1, -1, 2], [-4, 0, 4], [-4, 1, 3]] >> : Output = "+output.toString())
+}
+fun zeroSomeTriplets(x: List<Int>):MutableList<List<Int>> {
+    val triplets: MutableList<List<Int>> = mutableListOf() //To change to Mutable/Immutable if not used
+    var triplet : List<Int>
+    if(x.size < 3) {
+        triplets.add(x)
+        return triplets
+    }
+    for(i in 0..x.size-3){
+        for (k in i+1 .. x.size-2){
+            for(l in k+1 .. x.size-1){
+                if(x[i]+x[k]+x[l] == 0 ){
+                    triplet = listOf(x[i], x[k], x[l]).sorted()
+                    if(!triplets.contains(triplet)){
+                        triplets.add(triplet)
+                    }
+                }
+            }
+        }
+    }
+    return triplets
+}
+
+
+fun mergeKSortedLists__Tests(){
+    val x: List<List<Int>> = listOf(listOf(1,4,5),listOf(1,3,4),listOf(2,6))
+    val output = mergeKSortedLists(x)
+    println("expecting << [1,1,2,3,4,4,5,6] >>" + output.toString())
+}
+//Complexity here is O(n log n): ToDO: O(n log k) optimized solution benefiting from the already sorted sub-lists using PriorityQueue//Pair
+fun mergeKSortedLists(x: List<List<Int>>): List<Int>{
+    val gList : MutableList <Int> = mutableListOf()
+    for(list in x){
+        for (elem in list){
+            gList.add(elem)
+        }
+    }
+    return gList.sorted()
+}
+
+
+fun wordLadder__Test(){
+    val beginWord = "hit"
+    val endWord = "cog"
+    val wordsList = listOf("dot", "hot", "dog", "lot", "log", "cog")
+    val output = wordLadder(beginWord, endWord, wordsList)
+    println("expecting << [[hit, hot, dot, dog, cog], [hit, hot, lot, log, cog]] >>" + output.toString())
+}
+
+fun checkStrDifference(x: String, y: String):Int{
+    val length = x.length //Considering strings have the same length
+    var diff: Int = 0
+    for (i in 0 until length){
+        if (x[i] != y[i]){
+            diff ++
+        }
+    }
+    return diff
+}
+
+fun wordLadder(beginWord: String, endWord: String, wordsList: List<String>):List<List<String>>{
+    var out: MutableList<MutableList<String>>
+    var nextWords: MutableSet<String> = mutableSetOf()// Supposing only 1 character change, otherWise, using this paradigm each word will have list of sets
+    var mapping : MutableMap<String, MutableSet<String>> = mutableMapOf()
+
+    for(i in 0..wordsList.size-2){
+        for(k in i+1 ..wordsList.size -1){
+            if(checkStrDifference(wordsList[i], wordsList[k]) <= 1 ){
+                nextWords.add(wordsList[k])
+            }
+        }
+        mapping.put(wordsList[i], nextWords)
+        nextWords
+    }
+
+    for(entry in mapping){
+        entry.key
+    }
+
+}
+
 
 fun main(){
     //twoSum__test()
@@ -176,7 +262,11 @@ fun main(){
     //removeDuplicatesArray__test()
     //maxProfit__test()
     //tableDecimalAdd__test()
-    longestSubstringLength__Test()
+    //longestSubstringLength__Test()
+
+    //zeroSomeTriplets__Test()
+    //mergeKSortedLists__Test()
+    wordLadder__Test()
 
 
 }
