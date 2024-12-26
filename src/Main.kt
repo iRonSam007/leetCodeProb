@@ -217,42 +217,80 @@ fun mergeKSortedLists(x: List<List<Int>>): List<Int>{
 fun wordLadder__Test(){
     val beginWord = "hit"
     val endWord = "cog"
-    val wordsList = listOf("dot", "hot", "dog", "lot", "log", "cog")
-    val output = wordLadder(beginWord, endWord, wordsList)
+    val wordList = mutableListOf("dot", "hot", "dog", "lot", "log", "cog")
+    val output = wordLadder(beginWord, endWord, wordList)
     println("expecting << [[hit, hot, dot, dog, cog], [hit, hot, lot, log, cog]] >>" + output.toString())
 }
 
-fun checkStrDifference(x: String, y: String):Int{
-    val length = x.length //Considering strings have the same length
-    var diff: Int = 0
-    for (i in 0 until length){
-        if (x[i] != y[i]){
-            diff ++
-        }
-    }
-    return diff
+fun wordLadder(beginWord: String, endWord: String, wordList: MutableList<String>):MutableList<MutableList<String>>{
+    var iPaths: MutableList<MutableList<String>> = mutableListOf()
+    iPaths.add(mutableListOf(beginWord))
+    println(iPaths.toString()) //debug
+    val ladder = Ladder(wordList, iPaths)
+    ladder.buildPaths()
+    return ladder.paths
 }
+class Ladder(wordList: MutableList<String>, initialPaths: MutableList<MutableList<String>> ){
+    var paths: MutableList<MutableList<String>> = initialPaths
+    var wordReserve: MutableList<String> = wordList
 
-fun wordLadder(beginWord: String, endWord: String, wordsList: List<String>):List<List<String>>{
-    var out: MutableList<MutableList<String>>
-    var nextWords: MutableSet<String> = mutableSetOf()// Supposing only 1 character change, otherWise, using this paradigm each word will have list of sets
-    var mapping : MutableMap<String, MutableSet<String>> = mutableMapOf()
-
-    for(i in 0..wordsList.size-2){
-        for(k in i+1 ..wordsList.size -1){
-            if(checkStrDifference(wordsList[i], wordsList[k]) <= 1 ){
-                nextWords.add(wordsList[k])
+    //Construct new paths and clean used words
+    fun constructNewPaths(tMap: MutableMap<MutableList<String>, MutableList<String>>): MutableList<MutableList<String>>{
+        var newPaths: MutableList<MutableList<String>> = mutableListOf()
+        for (elem in tMap){
+            for( t in elem.value){
+                var newPath = (elem.key + t).toMutableList()
+                println(newPath.toString()) //debug
+                newPaths.add(newPath)
+                wordReserve.remove(t) // We can cleanWordReserve after constructing path if there is interference.
             }
         }
-        mapping.put(wordsList[i], nextWords)
-        nextWords
+        return newPaths
     }
 
-    for(entry in mapping){
-        entry.key
+    fun buildPaths(){
+        if(checkCompletion()){
+            return
+        }
+        else {
+            var nextTransformationsMap : MutableMap<MutableList<String>, MutableList<String>> = mutableMapOf()
+            for(i in 0..paths.size -1){
+                var pathNextTransformations = findTransformations(paths[i].last(), wordReserve)
+                nextTransformationsMap.put(paths[i], pathNextTransformations)
+            }
+            paths = constructNewPaths(nextTransformationsMap)
+            buildPaths()
+        }
     }
 
+    fun checkCompletion(): Boolean{
+        if(wordReserve.isEmpty()){
+            return true
+        }
+        return false
+    }
+
+    fun findTransformations(word: String, list: List<String>): MutableList<String>{ //Only considering "1 char change", we can upgrade this with more sophisticated conditions.
+        val tList: MutableList<String> = mutableListOf()
+        for (elem in list){
+            if (checkStrDifference(word, elem) == 1){
+                tList.add(elem)
+            }
+        }
+        return tList
+    }
+    fun checkStrDifference(x: String, y: String):Int{
+        val length = x.length //Considering strings have the same length
+        var diff: Int = 0
+        for (i in 0 until length){
+            if (x[i] != y[i]){
+                diff ++
+            }
+        }
+        return diff
+    }
 }
+
 
 
 fun main(){
@@ -267,6 +305,9 @@ fun main(){
     //zeroSomeTriplets__Test()
     //mergeKSortedLists__Test()
     wordLadder__Test()
+
+
+
 
 
 }
